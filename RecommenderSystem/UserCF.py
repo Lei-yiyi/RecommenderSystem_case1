@@ -162,11 +162,6 @@ def userCF(user_name, users_dict, items_dict, K, all_items_names_to_be_recommend
     recommend_items_sorted：按感兴趣程度降序排列的推荐节目集，[[节目一, 该用户对节目一的感兴趣程度],[...], ...]
     '''
 
-    # recommend_items = 
-    # 将上面的recommend_items转换成列表形式并排序为recommend_items_sorted = [[节目一, 该用户对节目一的感兴趣程度],[...], ...]
-    
-    recommend_items_sorted = []
-
     # 某用户看过的节目
     items_user_saw = []
     for item in users_dict[user_name]:
@@ -197,6 +192,7 @@ def userCF(user_name, users_dict, items_dict, K, all_items_names_to_be_recommend
                         recommend_items[item[0]] += user[1]
 
     # 将上面的recommend_items转换成列表形式并排序为recommend_items_sorted，[[节目一, 该用户对节目一的感兴趣程度],[...], ...]
+    recommend_items_sorted = []
     for key in recommend_items:
         recommend_items_sorted.append([key, recommend_items[key]])
 
