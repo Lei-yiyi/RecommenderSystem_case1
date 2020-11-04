@@ -41,5 +41,6 @@
 - [UserCF.py](UserCF.py)
 
 ### 3.3、基于用户的协同过滤（UserCF）与基于内容（CB）的推荐算法的后融合的混合推荐
+
 将CB和userCF的两个推荐集按一定比例混合
 - [CB_Mixture_userCF.py](CB_Mixture_userCF.py)
