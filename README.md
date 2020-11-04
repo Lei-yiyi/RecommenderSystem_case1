@@ -1,5 +1,7 @@
 # RecommenderSystem_case1
 
+原文链接：https://github.com/Yuziquan/RecommenderSystem
+
 ## 1、项目目标
 实现一个网络电视节目推荐系统，基于每位用户的观看记录以及节目信息，对每位用户实行节目的个性化推荐。
 
