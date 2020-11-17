@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[55]:
-
 
 # 代码说明：基于内容的推荐算法的具体实现
 # 根据“所有用户对其看过的节目的评分矩阵.xlsx”以及“所有用户看过的节目及所属类型的01矩阵.xlsx”得到用户画像（一个关于评分数据的行向量，
@@ -10,7 +8,7 @@
 # 有/具备哪些类型）进行相似度的计算，最后将推荐节目集按相似度进行降序排序后取出topN个节目
 
 
-# In[56]:
+# 这里的物品指节目
 
 
 import math
@@ -18,17 +16,15 @@ import numpy as np
 import pandas as pd
 
 
-# In[57]:
-
-
-# 创建节目画像
 def createItemsProfiles(data_array, labels_names, items_names):
     '''
-    data_array: 所有用户看过的节目的所属类型的01矩阵，[[0, 0, 0, 0, 0, 0, 0, 0, 1, ...], [...] ...]
-    labels_names：所有类型名，['教育', '戏曲', ...]
-    items_names：所有节目名，['大军师司马懿之军师联盟', '非诚勿扰', '记忆大师', ...]
+    创建物品画像
     
-    items_profiles：节目画像，{item1:{'label1':1, 'label2': 0, 'label3': 0, ...}, item2:{...}...}
+    data_array: 所有用户看过的物品的所属标签的01矩阵，[[0, 0, 0, 0, 0, 0, 0, 0, 1, ...], [...] ...]
+    labels_names：所有标签，['教育', '戏曲', ...]
+    items_names：所有物品id，['大军师司马懿之军师联盟', '非诚勿扰', '记忆大师', ...]
+    
+    items_profiles：物品画像，{item1:{'label1':1, 'label2': 0, 'label3': 0, ...}, item2:{...}...}
     '''
 
     items_profiles = {}
@@ -43,20 +39,18 @@ def createItemsProfiles(data_array, labels_names, items_names):
     return items_profiles
 
 
-# In[58]:
-
-
-# 创建用户画像
 def createUsersProfiles(data_array, users_names, items_names, labels_names, items_profiles):
     '''
-    data_array: 所有用户对于其所看过的节目的评分矩阵,[[0.1804 0.042 0.11  0.07  0.19  0.56  0.14  0.3  0.32 0, ...], [...] ...]
-    users_names：所有用户名，['A', 'B', 'C']
-    items_names：所有节目名，['大军师司马懿之军师联盟', '非诚勿扰', '记忆大师', ...]
-    labels_names：所有类型名，['教育', '戏曲', ...]
-    items_profiles：节目画像，{item1:{'label1':1, 'label2': 0, 'label3': 0, ...}, item2:{...}...}
+    创建用户画像
+    
+    data_array: 所有用户对于其所看过的物品的评分矩阵,[[0.1804 0.042 0.11  0.07  0.19  0.56  0.14  0.3  0.32 0, ...], [...] ...]
+    users_names：所有用户id，['A', 'B', 'C']
+    items_names：所有物品id，['大军师司马懿之军师联盟', '非诚勿扰', '记忆大师', ...]
+    labels_names：所有标签，['教育', '戏曲', ...]
+    items_profiles：物品画像，{item1:{'label1':1, 'label2': 0, 'label3': 0, ...}, item2:{...}...}
     
     users_profiles：用户画像，{user1:{'label1':1.1, 'label2': 0.5, 'label3': 0.0, ...}, user2:{...}...}
-    items_users_saw：统计每个用户所看过的节目（不加入隐性评分信息）
+    items_users_saw：统计每个用户看过的物品（不加入隐性评分信息）
     '''
 
     users_profiles = {}
@@ -128,17 +122,15 @@ def createUsersProfiles(data_array, users_names, items_names, labels_names, item
     return (users_profiles, items_users_saw)
 
 
-# In[59]:
-
-
-# 计算用户画像向量与节目画像向量的距离（相似度），向量相似度计算公式：cos(user, item) = sigma_ui/sqrt(sigma_u * sigma_i)
 def calCosDistance(user, item, labels_names):
     '''
-    user: 某一用户的画像，{'label1':1.1, 'label2': 0.5, 'label3': 0.0, ...}
-    item: 某一节目的画像，{'label1':1, 'label2': 0, 'label3': 0, ...}
-    labels_names: 所有类型名
+    计算用户画像向量与物品画像向量的距离（相似度），向量相似度计算公式：cos(user, item) = sigma_ui/sqrt(sigma_u * sigma_i)
     
-    sigma_ui/math.sqrt(sigma_u * sigma_i)：用户画像向量与节目画像向量的距离（相似度）
+    user: 某一用户的画像，{'label1':1.1, 'label2': 0.5, 'label3': 0.0, ...}
+    item: 某一物品的画像，{'label1':1, 'label2': 0, 'label3': 0, ...}
+    labels_names: 所有标签
+    
+    sigma_ui/math.sqrt(sigma_u * sigma_i)：用户画像向量与物品画像向量的距离（相似度）
     '''
 
     sigma_ui = 0.0
@@ -156,19 +148,19 @@ def calCosDistance(user, item, labels_names):
     return sigma_ui/math.sqrt(sigma_u * sigma_i)
 
 
-# In[60]:
-
-
-# 基于内容的推荐算法：借助特定某个用户的画像user_profile和备选推荐节目集的画像items_profiles，通过计算向量之间的相似度得出推荐节目集
 def contentBased(user_profile, items_profiles, items_names, labels_names, items_user_saw):
     '''
-    user_profile: 某一用户的画像，{'label1':1.1, 'label2': 0.5, 'label3': 0.0, ...}
-    items_profiles: 备选推荐节目集的节目画像，{item1:{'label1':1, 'label2': 0, 'label3': 0}, item2:{...}...}
-    items_names: 备选推荐节目集中的所有节目名
-    labels_names: 所有类型名
-    items_user_saw: 某一用户看过的节目
+    基于内容的推荐算法：借助某个用户的画像user_profile和备选推荐物品集的画像items_profiles，
+    通过计算向量之间的相似度得出推荐物品集
+
     
-    recommend_items：按相似度降序排列的推荐节目集，[[节目名, 该节目画像与该用户画像的相似度], ...]
+    user_profile: 某一用户的画像，{'label1':1.1, 'label2': 0.5, 'label3': 0.0, ...}
+    items_profiles: 备选推荐物品集的物品画像，{item1:{'label1':1, 'label2': 0, 'label3': 0}, item2:{...}...}
+    items_names: 备选推荐物品集中的所有物品id
+    labels_names: 所有标签
+    items_user_saw: 某一用户看过的物品
+    
+    recommend_items：按相似度降序排列的推荐物品集，[[物品名, 该物品画像与该用户画像的相似度], ...]
     '''
     
     recommend_items = []
@@ -184,14 +176,12 @@ def contentBased(user_profile, items_profiles, items_names, labels_names, items_
     return recommend_items
 
 
-# In[61]:
-
-
-# 输出推荐给该用户的节目列表
 def printRecommendedItems(recommend_items_sorted, max_num):
     '''
-    recommend_items_sorted：按相似度降序排列的推荐节目集，[[节目名, 该节目画像与该用户画像的相似度], ...]
-    max_num：最多输出的推荐节目数，3
+    输出推荐给该用户的物品列表
+    
+    recommend_items_sorted：按相似度降序排列的推荐物品集，[[物品名, 该物品画像与该用户画像的相似度], ...]
+    max_num：最多输出的推荐物品数，3
     '''
     
     count = 0
@@ -200,9 +190,6 @@ def printRecommendedItems(recommend_items_sorted, max_num):
         count += 1
         if count == max_num:
             break
-
-
-# In[62]:
 
 
 # 主程序
