@@ -55,7 +55,7 @@ def createUsersProfiles(data_array, users_names, items_names, labels_names, item
     labels_names：所有类型名，['教育', '戏曲', ...]
     items_profiles：节目画像，{item1:{'label1':1, 'label2': 0, 'label3': 0, ...}, item2:{...}...}
     
-    users_profiles = {user1:{'label1':1.1, 'label2': 0.5, 'label3': 0.0, ...}, user2:{...}...}
+    users_profiles：用户画像，{user1:{'label1':1.1, 'label2': 0.5, 'label3': 0.0, ...}, user2:{...}...}
     items_users_saw：统计每个用户所看过的节目（不加入隐性评分信息）
     '''
 
